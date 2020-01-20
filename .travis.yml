@@ -1,10 +1,28 @@
+#tell travis we need sudo access
 sudo: required
+# tell travis we need docker
 services:
     - docker
-
+# build docker image from dockerfile and give a name with tag -t
 before_install:
     - docker build -t benedery/docker-react -f Dockerfile.travis .
-
+# run that docker container with CI env and with the image we created, than run yarn test with it.
 #script contain all commands to run test suits
 script:
     - docker run -e CI=true benedery/docker-react yarn run test
+
+#provide travis all information to deploy the container/app
+deploy:
+    provider: elasticbeanstalk
+    region: "us-east-2"
+    app: "docker-react"
+    env: "React-env"
+    bucket_name: "elasticbeanstalk-us-east-2-479664798978"
+    bucket_path: "docker-react"
+    on:
+        branch: master
+
+#        keys for travis for deploy - aws in search put IAM - get info
+    #decalred in env in travis website in associate repo
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
